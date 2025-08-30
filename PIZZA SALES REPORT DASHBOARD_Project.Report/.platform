@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "PIZZA SALES REPORT DASHBOARD_Project"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "cd963953-c9d8-4ee0-b437-993fc66e7305"
+  }
+}

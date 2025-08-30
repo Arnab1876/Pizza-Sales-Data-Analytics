@@ -1,0 +1,149 @@
+table pizza_sales
+	lineageTag: 81df6fc8-f6ff-4b6f-a4c8-c766a5ef0cb7
+
+	column pizza_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 4708cc28-082a-4986-9b3f-56bb562b8cca
+		summarizeBy: sum
+		sourceColumn: pizza_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 1b509a83-cf58-4dc6-8e64-c46792cb9860
+		summarizeBy: sum
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column pizza_name_id
+		dataType: string
+		lineageTag: 62facb1f-87c1-4b79-bae6-e3168c7fa1b3
+		summarizeBy: none
+		sourceColumn: pizza_name_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: ba84912b-3ff2-4d1e-affe-66722df9bc1f
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week of the Day'
+		dataType: string
+		lineageTag: 7e3363fc-a603-4288-8124-af3402b6a48b
+		summarizeBy: none
+		sourceColumn: Week of the Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_time
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: c1a8774e-b627-48ab-924e-beceaca213f3
+		summarizeBy: none
+		sourceColumn: order_time
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column unit_price
+		dataType: decimal
+		formatString: "₹"\ #,0.###############;#,0.###############\ -"₹";"₹"\ #,0.###############
+		lineageTag: ac2b22df-561a-4f1e-9c58-276b42259245
+		summarizeBy: sum
+		sourceColumn: unit_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-IN"}
+
+	column total_price
+		dataType: decimal
+		formatString: "₹"\ #,0.###############;#,0.###############\ -"₹";"₹"\ #,0.###############
+		lineageTag: a183bd05-89ff-460c-b7be-c9f6229435ac
+		summarizeBy: sum
+		sourceColumn: total_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-IN"}
+
+	column pizza_size
+		dataType: string
+		lineageTag: ff23d64b-eaf6-4fe3-b3fa-c603c05f8222
+		summarizeBy: none
+		sourceColumn: pizza_size
+
+		annotation SummarizationSetBy = Automatic
+
+	column pizza_category
+		dataType: string
+		lineageTag: 88282343-b3c4-4094-b1b4-6dd643e97d18
+		summarizeBy: none
+		sourceColumn: pizza_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column pizza_ingredients
+		dataType: string
+		lineageTag: 1548c4f5-be51-4b4a-99ab-7c840906aa1b
+		summarizeBy: none
+		sourceColumn: pizza_ingredients
+
+		annotation SummarizationSetBy = Automatic
+
+	column pizza_name
+		dataType: string
+		lineageTag: 98323483-59c2-42af-9fbf-e70853d9b750
+		summarizeBy: none
+		sourceColumn: pizza_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition pizza_sales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\cvarn\Downloads\pizza_sales.csv"),[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"pizza_id", Int64.Type}, {"order_id", Int64.Type}, {"pizza_name_id", type text}, {"quantity", Int64.Type}, {"order_date", type date}, {"order_time", type time}, {"unit_price", type number}, {"total_price", type number}, {"pizza_size", type text}, {"pizza_category", type text}, {"pizza_ingredients", type text}, {"pizza_name", type text}}),
+				    #"Extracted Day Name" = Table.TransformColumns(#"Changed Type", {{"order_date", each Date.DayOfWeekName(_), type text}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Extracted Day Name", each [pizza_id] <> null and [pizza_id] <> ""),
+				    #"Filtered Rows1" = Table.SelectRows(#"Filtered Rows", each [order_id] <> null and [order_id] <> ""),
+				    #"Filtered Rows2" = Table.SelectRows(#"Filtered Rows1", each [pizza_name_id] <> null and [pizza_name_id] <> ""),
+				    #"Filtered Rows3" = Table.SelectRows(#"Filtered Rows2", each [quantity] <> null and [quantity] <> ""),
+				    #"Filtered Rows4" = Table.SelectRows(#"Filtered Rows3", each [order_date] <> null and [order_date] <> ""),
+				    #"Filtered Rows5" = Table.SelectRows(#"Filtered Rows4", each [order_time] <> null and [order_time] <> ""),
+				    #"Filtered Rows6" = Table.SelectRows(#"Filtered Rows5", each [unit_price] <> null and [unit_price] <> ""),
+				    #"Filtered Rows7" = Table.SelectRows(#"Filtered Rows6", each [total_price] <> null and [total_price] <> ""),
+				    #"Filtered Rows8" = Table.SelectRows(#"Filtered Rows7", each [pizza_size] <> null and [pizza_size] <> ""),
+				    #"Filtered Rows9" = Table.SelectRows(#"Filtered Rows8", each [pizza_category] <> null and [pizza_category] <> ""),
+				    #"Filtered Rows10" = Table.SelectRows(#"Filtered Rows9", each [pizza_ingredients] <> null and [pizza_ingredients] <> ""),
+				    #"Filtered Rows11" = Table.SelectRows(#"Filtered Rows10", each [pizza_name] <> null and [pizza_name] <> ""),
+				    #"Filtered Rows12" = Table.SelectRows(#"Filtered Rows11", each ([order_time] <> null and [order_time] <> "")),
+				    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows12",{{"order_date", "Week of the Day"}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Renamed Columns",{{"total_price", Currency.Type}, {"unit_price", Currency.Type}}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Changed Type1",{{"pizza_name_id", Text.Proper, type text}}),
+				    #"Inserted Start of Hour" = Table.AddColumn(#"Capitalized Each Word", "Start of Hour", each Time.StartOfHour([order_time]), type time),
+				    #"Inserted Time" = Table.AddColumn(#"Inserted Start of Hour", "Time", each DateTime.Time([Start of Hour]), type time),
+				    #"Removed Columns" = Table.RemoveColumns(#"Inserted Time",{"Start of Hour"}),
+				    #"Extracted Hour" = Table.TransformColumns(#"Removed Columns",{{"Time", Time.Hour, Int64.Type}}),
+				    #"Added Custom" = Table.AddColumn(#"Extracted Hour", "Customtime", each Number.Round(Number.From[order_time]*(60*24/60))/(60*24/60)),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Added Custom",{"Customtime", "Time"}),
+				    #"Calculated Start of Hour" = Table.TransformColumns(#"Removed Columns1",{{"order_time", Time.StartOfHour, type time}})
+				in
+				    #"Calculated Start of Hour"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
